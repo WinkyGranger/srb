@@ -1,6 +1,8 @@
 package com.winky.srb.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.winky.common.exception.Assert;
 import com.winky.common.result.ResponseEnum;
 import com.winky.common.util.MD5;
@@ -11,15 +13,19 @@ import com.winky.srb.core.pojo.entity.UserAccount;
 import com.winky.srb.core.pojo.entity.UserInfo;
 import com.winky.srb.core.mapper.UserInfoMapper;
 import com.winky.srb.core.pojo.entity.UserLoginRecord;
+import com.winky.srb.core.pojo.query.UserInfoQuery;
 import com.winky.srb.core.pojo.vo.LoginVo;
 import com.winky.srb.core.pojo.vo.RegisterVo;
 import com.winky.srb.core.pojo.vo.UserInfoVo;
 import com.winky.srb.core.service.UserInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * <p>
@@ -103,5 +109,30 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfoVO.setMobile(info.getMobile());
         userInfoVO.setUserType(userType);
         return userInfoVO;
+    }
+
+    @Override
+    public IPage<UserInfo> listPage(Page<UserInfo> userInfoPage, UserInfoQuery query) {
+        if(query == null){
+            return baseMapper.selectPage(userInfoPage,null);
+        }
+        String mobile = query.getMobile();
+        Integer userType = query.getUserType();
+        Integer status = query.getStatus();
+
+        QueryWrapper<UserInfo> qw = new QueryWrapper<>();
+        qw.eq(StringUtils.isNotBlank(mobile), "mobile", mobile)
+                .eq(status != null, "status", status)
+                .eq(userType != null, "user_type", userType);
+        Page<UserInfo> userInfoPage1 = baseMapper.selectPage(userInfoPage, qw);
+        return userInfoPage1;
+    }
+
+    @Override
+    public void lock(Long id, Integer status) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(id);
+        userInfo.setStatus(status);
+        baseMapper.updateById(userInfo);
     }
 }
