@@ -23,11 +23,16 @@
             <artifactId>springfox-swagger2</artifactId>
         </dependency>
         <!--swagger ui-->
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-swagger-ui</artifactId>-->
+<!--        </dependency>-->
+<!--        github上开发的ui界面，功能相比于上面一个更强大-->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>1.9.2</version>
         </dependency>
-
         <!-- spring boot redis缓存引入 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

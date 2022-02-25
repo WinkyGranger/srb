@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtUtils {
 
     private static long tokenExpiration = 24*60*60*1000;
-    private static String tokenSignKey = "A1t2g3uigu123456";
+    private static String tokenSignKey = "W1i2n3k4y123456";
 
     private static Key getKeyInstance(){
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
