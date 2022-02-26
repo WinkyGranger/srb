@@ -24,9 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
 /**
  * <p>
  * 用户基本信息 服务实现类
@@ -134,5 +131,13 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         userInfo.setId(id);
         userInfo.setStatus(status);
         baseMapper.updateById(userInfo);
+    }
+
+    @Override
+    public boolean checkMobile(String mobile) {
+        QueryWrapper<UserInfo> qw = new QueryWrapper<>();
+        qw.eq("mobile",mobile);
+        Integer integer = baseMapper.selectCount(qw);
+        return integer > 0;
     }
 }

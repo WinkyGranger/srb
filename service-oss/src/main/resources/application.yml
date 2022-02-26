@@ -11,6 +11,11 @@ spring:
 #      max-file-size: 50
 #      max-request-size: 100MB
 
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
 
 aliyun:
   oss:

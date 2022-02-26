@@ -91,5 +91,18 @@ public class UserInfoController {
         }
     }
 
+
+
+    @ApiOperation("校验手机号是否注册")
+    @GetMapping("/checkMobile/{mobile}")
+    public R checkMobile(@PathVariable String mobile){
+        boolean b = userInfoService.checkMobile(mobile);
+        if(b){
+            return R.ok().message("用户已注册");
+        }else{
+            return R.ok().message("用户未注册");
+        }
+    }
+
 }
 
