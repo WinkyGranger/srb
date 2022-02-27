@@ -26,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/core/userLoginRecord")
 @Slf4j
-@CrossOrigin
+//@CrossOrigin
 public class AdminUserLoginRecordController {
 
     @Autowired

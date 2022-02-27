@@ -5,6 +5,7 @@ import com.winky.common.result.R;
 import com.winky.common.result.ResponseEnum;
 import com.winky.common.util.RandomUtils;
 import com.winky.common.util.RegexValidateUtils;
+import com.winky.srb.sms.client.CoreUserInfoClient;
 import com.winky.srb.sms.service.SmsService;
 import com.winky.srb.sms.util.SmsProperties;
 import io.swagger.annotations.Api;
@@ -25,13 +26,15 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/sms")
 @Api(tags = "短信管理")
-@CrossOrigin
+//@CrossOrigin
 @Slf4j
 public class ApiSmsController {
     @Autowired
     private SmsService smsService;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private CoreUserInfoClient coreUserInfoClient;
 
 //    @GetMapping("/sendShortMessege/{mobile}")
 //    @ApiOperation("获取验证码发送到手机")
@@ -61,8 +64,8 @@ public class ApiSmsController {
         Assert.isTrue(RegexValidateUtils.checkCellphone(mobile),ResponseEnum.MOBILE_ERROR);
 
         //判断是否已经注册，注册了就不许要发送验证码，不然浪费短信费用
-
-
+        boolean b = coreUserInfoClient.checkMobile(mobile);
+        Assert.isTrue(b == false,ResponseEnum.MOBILE_EXIST_ERROR);
         //发送短信
         HashMap<String,Object > mobileMap = new HashMap<>();
         String code = RandomUtils.getFourBitRandom();
