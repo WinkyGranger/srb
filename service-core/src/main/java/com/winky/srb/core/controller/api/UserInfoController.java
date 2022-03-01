@@ -8,6 +8,7 @@ import com.winky.common.util.RegexValidateUtils;
 import com.winky.srb.base.util.JwtUtils;
 import com.winky.srb.core.pojo.vo.LoginVo;
 import com.winky.srb.core.pojo.vo.RegisterVo;
+import com.winky.srb.core.pojo.vo.UserIndexVO;
 import com.winky.srb.core.pojo.vo.UserInfoVo;
 import com.winky.srb.core.service.UserInfoService;
 import io.swagger.annotations.Api;
@@ -98,6 +99,15 @@ public class UserInfoController {
     public boolean checkMobile(@PathVariable String mobile){
         boolean b = userInfoService.checkMobile(mobile);
         return b;
+    }
+
+    @ApiOperation("获取个人空间用户信息")
+    @GetMapping("/auth/getIndexUserInfo")
+    public R getIndexUserInfo(HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = JwtUtils.getUserId(token);
+        UserIndexVO userIndexVO = userInfoService.getIndexUserInfo(userId);
+        return R.ok().data("userIndexVO", userIndexVO);
     }
 
 }

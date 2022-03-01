@@ -92,6 +92,35 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         return dicts;
     }
 
+    @Override
+    public List<Dict> findByDictCode(String dictCode) {
+        try {
+        List<Dict> dictList = (List<Dict>)redisTemplate.opsForValue().get("前端:" + dictCode);
+        if(dictList != null){
+            log.info("从redis中取出列表");
+            return dictList;
+        }
+        }catch (Exception e) {
+        log.error("redis服务器异常：" + ExceptionUtils.getStackTrace(e));//此处不抛出异常，继续执行后面的代码
+    }
+
+
+        QueryWrapper<Dict> dqw = new QueryWrapper<>();
+        dqw.eq("dict_code",dictCode);
+        Dict dict = baseMapper.selectOne(dqw);
+        List<Dict> dicts = this.listByParentId(dict.getId());
+
+        try{
+            log.info("数据存入redis中");
+            //将数据存入redis
+            redisTemplate.opsForValue().set("前端:" + dictCode,dicts,5, TimeUnit.MINUTES);
+        }catch(Exception e){
+            log.error("redis服务器异常：" + ExceptionUtils.getStackTrace(e));//此处不抛出异常，继续执行后面的代码
+        }
+
+        return dicts;
+    }
+
     /**
      * 判断当前id所在节点下是否有子节点
      * @param id
@@ -103,7 +132,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         Integer integer = baseMapper.selectCount(dictQueryWrapper);
         if(integer > 0){
             return true;
-        }return false;
+        }
+        return false;
     }
 }
 

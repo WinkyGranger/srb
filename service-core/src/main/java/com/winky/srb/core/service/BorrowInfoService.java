@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BorrowInfoService extends IService<BorrowInfo> {
 
+    Integer getStatusByUserId(Long userId);
 }

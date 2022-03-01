@@ -1,8 +1,10 @@
 package com.winky.srb.core.controller.api;
 
 
+import com.alibaba.fastjson.JSON;
 import com.winky.common.result.R;
 import com.winky.srb.base.util.JwtUtils;
+import com.winky.srb.core.hfb.RequestHelper;
 import com.winky.srb.core.pojo.vo.UserBindVo;
 import com.winky.srb.core.service.UserBindService;
 import io.swagger.annotations.Api;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * <p>
@@ -40,10 +43,25 @@ public class UserBindController {
         //从head中拿去token，并对token进行校验，确保用户已登陆
         String token = request.getHeader("token");
         Long userId = JwtUtils.getUserId(token);
-
         //根据userId绑定,生成一个动态表单字符串
         String formStr = userBindService.commitBindUser(userBindVo,userId);
         return R.ok().data("formStr",formStr);
+    }
+
+    @ApiOperation("账户绑定异步回调")
+    @PostMapping("/notify")
+    public String notify(HttpServletRequest request) {
+        Map<String, Object> paramMap = RequestHelper.switchMap(request.getParameterMap());
+        log.info("用户账号绑定异步回调：" + JSON.toJSONString(paramMap));
+
+        //校验签名
+        if(!RequestHelper.isSignEquals(paramMap)) {
+            log.error("用户账号绑定异步回调签名错误：" + JSON.toJSONString(paramMap));
+            return "fail";
+        }
+        //修改绑定状态
+        userBindService.notify(paramMap);
+        return "success";
     }
 
 }
