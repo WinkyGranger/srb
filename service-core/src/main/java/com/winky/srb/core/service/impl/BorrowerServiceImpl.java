@@ -1,9 +1,8 @@
 package com.winky.srb.core.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.winky.common.exception.Assert;
-import com.winky.common.result.ResponseEnum;
-import com.winky.srb.core.enums.BorrowInfoStatusEnum;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.winky.srb.core.enums.BorrowerStatusEnum;
 import com.winky.srb.core.mapper.BorrowerAttachMapper;
 import com.winky.srb.core.mapper.UserInfoMapper;
@@ -11,9 +10,14 @@ import com.winky.srb.core.pojo.entity.Borrower;
 import com.winky.srb.core.mapper.BorrowerMapper;
 import com.winky.srb.core.pojo.entity.BorrowerAttach;
 import com.winky.srb.core.pojo.entity.UserInfo;
+import com.winky.srb.core.pojo.vo.BorrowerAttachVO;
+import com.winky.srb.core.pojo.vo.BorrowerDetailVO;
 import com.winky.srb.core.pojo.vo.BorrowerVO;
+import com.winky.srb.core.service.BorrowerAttachService;
 import com.winky.srb.core.service.BorrowerService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.winky.srb.core.service.DictService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,12 @@ public class BorrowerServiceImpl extends ServiceImpl<BorrowerMapper, Borrower> i
 
     @Autowired
     private BorrowerAttachMapper borrowerAttachMapper;
+
+    @Autowired
+    private DictService dictService;
+
+    @Autowired
+    private BorrowerAttachService borrowerAttachService;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -79,5 +89,56 @@ public class BorrowerServiceImpl extends ServiceImpl<BorrowerMapper, Borrower> i
         }
         Integer status = (Integer)objects.get(0);
         return status;
+    }
+
+    @Override
+    public IPage<Borrower> listPage(Page<Borrower> pageParam, String keyword) {
+        if(StringUtils.isBlank(keyword)){
+            return baseMapper.selectPage(pageParam,null);
+        }
+        QueryWrapper<Borrower> qw = new QueryWrapper<>();
+        qw.like("name",keyword)
+                .or()
+                .like("id_card",keyword)
+                .or()
+                .like("mobile", keyword)
+                .orderByDesc("id");
+        return baseMapper.selectPage(pageParam,qw);
+
+    }
+
+    @Override
+    public BorrowerDetailVO getBorrowerDetailVOById(Long id) {
+        Borrower borrower = baseMapper.selectById(id);
+        BorrowerDetailVO borrowerDetailVO = new BorrowerDetailVO();
+        BeanUtils.copyProperties(borrower, borrowerDetailVO);
+        //婚否
+        borrowerDetailVO.setMarry(borrower.getMarry()?"是":"否");
+        //性别
+        borrowerDetailVO.setSex(borrower.getSex()==1?"男":"女");
+
+        Integer education = borrower.getEducation();
+        Integer industry = borrower.getIndustry();
+        Integer income = borrower.getIncome();
+        Integer returnSource = borrower.getReturnSource();
+        Integer contactsRelation = borrower.getContactsRelation();
+
+        //下拉列表
+        borrowerDetailVO.setEducation(dictService.getNameByParentDictCodeAndValue("education",education));
+        borrowerDetailVO.setIndustry(dictService.getNameByParentDictCodeAndValue("industry",industry));
+        borrowerDetailVO.setIncome(dictService.getNameByParentDictCodeAndValue("income",income));
+        borrowerDetailVO.setReturnSource(dictService.getNameByParentDictCodeAndValue("returnSource",returnSource));
+        borrowerDetailVO.setContactsRelation(dictService.getNameByParentDictCodeAndValue("contactsRelation",contactsRelation));
+
+        //附件列表
+        //审批状态
+        String status = BorrowerStatusEnum.getMsgByStatus(borrower.getStatus());
+        borrowerDetailVO.setStatus(status);
+
+        //获取附件VO列表
+        List<BorrowerAttachVO> borrowerAttachVOList = borrowerAttachService.selectBorrowerAttachVOList(id);
+        borrowerDetailVO.setBorrowerAttachVOList(borrowerAttachVOList);
+
+        return borrowerDetailVO;
     }
 }

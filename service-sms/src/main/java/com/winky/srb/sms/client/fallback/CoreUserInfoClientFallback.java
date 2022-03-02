@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class CoreUserInfoClientFallback implements CoreUserInfoClient {
 
 
-    //打把那个服务器宕机的时候，服务器不进行熔断，直接先发送验证码
+    //服务器宕机的时候，服务器不进行熔断，直接先发送验证码
     @Override
     public boolean checkMobile(String mobile) {
         log.error("远程调用失败，服务熔断");

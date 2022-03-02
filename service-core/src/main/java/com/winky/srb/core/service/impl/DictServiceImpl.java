@@ -122,6 +122,35 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /**
+     * 通过数据字典的节点和value值获取属性
+     * @param dictCode
+     * @param value
+     * @return
+     */
+    @Override
+    public String getNameByParentDictCodeAndValue(String dictCode, Integer value) {
+        QueryWrapper<Dict> dictQueryWrapper = new QueryWrapper<Dict>();
+        dictQueryWrapper.eq("dict_code", dictCode);
+        Dict parentDict = baseMapper.selectOne(dictQueryWrapper);
+
+        if(parentDict == null) {
+            return "";
+        }
+
+        dictQueryWrapper = new QueryWrapper<>();
+        dictQueryWrapper
+                .eq("parent_id", parentDict.getId())
+                .eq("value", value);
+        Dict dict = baseMapper.selectOne(dictQueryWrapper);
+
+        if(dict == null) {
+            return "";
+        }
+
+        return dict.getName();
+    }
+
+    /**
      * 判断当前id所在节点下是否有子节点
      * @param id
      * @return
