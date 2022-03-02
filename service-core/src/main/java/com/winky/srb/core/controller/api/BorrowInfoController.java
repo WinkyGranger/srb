@@ -1,4 +1,4 @@
-package com.winky.srb.core.controller;
+package com.winky.srb.core.controller.api;
 
 
 import com.winky.common.result.R;
@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 
 /**
  * <p>
@@ -38,6 +40,15 @@ public class BorrowInfoController {
         Long userId = JwtUtils.getUserId(token);
         Integer status = borrowInfoService.getStatusByUserId(userId);
         return R.ok().data("borrowInfoStatus", status);
+    }
+
+    @ApiOperation("获取借款额度")
+    @GetMapping("/auth/getBorrowAmount")
+    public R getBorrowAmount(HttpServletRequest request) {
+        String token = request.getHeader("token");
+        Long userId = JwtUtils.getUserId(token);
+        BigDecimal borrowAmount = borrowInfoService.getBorrowAmount(userId);
+        return R.ok().data("borrowAmount", borrowAmount);
     }
 
 }
