@@ -18,4 +18,6 @@ public interface BorrowInfoService extends IService<BorrowInfo> {
     Integer getStatusByUserId(Long userId);
 
     BigDecimal getBorrowAmount(Long userId);
+
+    void saveBorrowInfo(BorrowInfo borrowInfo, Long userId);
 }

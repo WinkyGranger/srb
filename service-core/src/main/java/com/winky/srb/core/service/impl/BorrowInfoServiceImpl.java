@@ -3,7 +3,10 @@ package com.winky.srb.core.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.winky.common.exception.Assert;
 import com.winky.common.result.ResponseEnum;
+import com.winky.srb.core.enums.BorrowAuthEnum;
 import com.winky.srb.core.enums.BorrowInfoStatusEnum;
+import com.winky.srb.core.enums.BorrowerStatusEnum;
+import com.winky.srb.core.enums.UserBindEnum;
 import com.winky.srb.core.mapper.IntegralGradeMapper;
 import com.winky.srb.core.mapper.UserInfoMapper;
 import com.winky.srb.core.pojo.entity.BorrowInfo;
@@ -64,5 +67,30 @@ public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowI
         }
         BigDecimal borrowAmount = integralGrade.getBorrowAmount();
         return borrowAmount;
+    }
+
+    @Override
+    public void saveBorrowInfo(BorrowInfo borrowInfo, Long userId) {
+        UserInfo info = userInfoMapper.selectById(userId);
+        int status =info.getStatus().intValue();
+        int bindStatus = info.getBindStatus().intValue();
+        int borrowAuthStatus = info.getBorrowAuthStatus().intValue();
+
+        //判断用户绑定状态
+        Assert.isTrue(bindStatus==UserBindEnum.BIND_OK.getStatus().intValue(),ResponseEnum.USER_NO_BIND_ERROR);
+        //判断额度申请状态
+        Assert.isTrue(borrowAuthStatus== BorrowerStatusEnum.AUTH_OK.getStatus(),ResponseEnum.USER_NO_AMOUNT_ERROR);
+        //借款人申请额度是否充足
+        //判断借款额度是否足够
+        BigDecimal borrowAmount = this.getBorrowAmount(userId);
+        Assert.isTrue(
+                borrowInfo.getAmount().doubleValue() <= borrowAmount.doubleValue(),
+                ResponseEnum.USER_AMOUNT_LESS_ERROR);
+        //储存borrowInfo数据
+        borrowInfo.setUserId(userId);
+        //百分比转成小数
+        borrowInfo.setBorrowYearRate( borrowInfo.getBorrowYearRate().divide(new BigDecimal(100)));
+        borrowInfo.setStatus(BorrowInfoStatusEnum.CHECK_RUN.getStatus());
+        baseMapper.insert(borrowInfo);
     }
 }
