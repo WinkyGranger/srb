@@ -4,6 +4,7 @@ import com.winky.srb.core.pojo.entity.BorrowInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * <p>
@@ -20,4 +21,6 @@ public interface BorrowInfoService extends IService<BorrowInfo> {
     BigDecimal getBorrowAmount(Long userId);
 
     void saveBorrowInfo(BorrowInfo borrowInfo, Long userId);
+
+    List<BorrowInfo> selectList();
 }

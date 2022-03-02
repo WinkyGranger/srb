@@ -15,6 +15,7 @@ import com.winky.srb.core.pojo.entity.IntegralGrade;
 import com.winky.srb.core.pojo.entity.UserInfo;
 import com.winky.srb.core.service.BorrowInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.winky.srb.core.service.DictService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,8 @@ public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowI
     private UserInfoMapper userInfoMapper;
     @Autowired
     private IntegralGradeMapper integralGradeMapper;
+    @Autowired
+    private DictService dictService;
 
     @Override
     public Integer getStatusByUserId(Long userId) {
@@ -92,5 +95,20 @@ public class BorrowInfoServiceImpl extends ServiceImpl<BorrowInfoMapper, BorrowI
         borrowInfo.setBorrowYearRate( borrowInfo.getBorrowYearRate().divide(new BigDecimal(100)));
         borrowInfo.setStatus(BorrowInfoStatusEnum.CHECK_RUN.getStatus());
         baseMapper.insert(borrowInfo);
+    }
+
+    @Override
+    public List<BorrowInfo> selectList() {
+        List<BorrowInfo> borrowInfoList = baseMapper.selectBorrowInfoList();
+        borrowInfoList.forEach(borrowInfo -> {
+            String returnMethod = dictService.getNameByParentDictCodeAndValue("returnMethod", borrowInfo.getReturnMethod());
+            String moneyUse = dictService.getNameByParentDictCodeAndValue("moneyUse", borrowInfo.getMoneyUse());
+            String status = BorrowInfoStatusEnum.getMsgByStatus(borrowInfo.getStatus());
+            borrowInfo.getParam().put("returnMethod", returnMethod);
+            borrowInfo.getParam().put("moneyUse", moneyUse);
+            borrowInfo.getParam().put("status", status);
+        });
+
+        return borrowInfoList;
     }
 }
