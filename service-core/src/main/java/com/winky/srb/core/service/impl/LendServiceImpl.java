@@ -114,7 +114,7 @@ public class LendServiceImpl extends ServiceImpl<LendMapper, Lend> implements Le
         lend.getParam().put("returnMethod",returnMethod);
         lend.getParam().put("status",status);
         //根据user_id获取借款人对象
-        QueryWrapper<Borrower> borrowerQueryWrapper = new QueryWrapper<Borrower>();
+        QueryWrapper<Borrower> borrowerQueryWrapper = new QueryWrapper<>();
         borrowerQueryWrapper.eq("user_id", lend.getUserId());
         Borrower borrower = borrowerMapper.selectOne(borrowerQueryWrapper);
         //组装借款人对象
