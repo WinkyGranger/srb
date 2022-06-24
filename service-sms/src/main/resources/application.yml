@@ -25,6 +25,13 @@ spring:
       discovery:
         server-addr: localhost:8848
 
+  rabbitmq:
+    host: 192.168.138.128
+    port: 5672
+    virtual-host: /
+    username: srb
+    password: 123456
+
 
 #阿里云短信
 aliyun:

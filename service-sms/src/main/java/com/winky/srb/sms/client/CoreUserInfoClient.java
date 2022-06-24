@@ -14,5 +14,4 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CoreUserInfoClient {
     @GetMapping("/api/core/userInfo/checkMobile/{mobile}")
     boolean checkMobile(@PathVariable String mobile);
-
 }

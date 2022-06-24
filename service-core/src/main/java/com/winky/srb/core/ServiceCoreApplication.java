@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @create 2022-02-20 19:04
  */
 @SpringBootApplication
-@ComponentScan({"com.winky.srb","com.winky.common"})
+@ComponentScan({"com.winky.srb","com.winky.common","com.winky.rabbitutil.config"})
 public class ServiceCoreApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServiceCoreApplication.class, args);

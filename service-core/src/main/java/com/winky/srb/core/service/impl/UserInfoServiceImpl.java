@@ -175,4 +175,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
         return userIndexVO;
     }
+
+    @Override
+    public String getMobileByBindCode(String bindCode) {
+        QueryWrapper<UserInfo> userInfoQW = new QueryWrapper<>();
+        userInfoQW.eq("bind_code",bindCode);
+        UserInfo userInfo = baseMapper.selectOne(userInfoQW);
+        return userInfo.getMobile();
+    }
 }

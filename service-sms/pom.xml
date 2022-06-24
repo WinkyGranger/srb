@@ -12,6 +12,11 @@
     <artifactId>service-sms</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>com.winky</groupId>
+            <artifactId>service-rabbitmq</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.winky</groupId>

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CoreUserInfoClientFallback implements CoreUserInfoClient {
 
-
     //服务器宕机的时候，服务器不进行熔断，直接先发送验证码
     @Override
     public boolean checkMobile(String mobile) {

@@ -1,5 +1,8 @@
 package com.winky.srb.core.service.impl;
 
+import com.winky.rabbitutil.constant.MQConst;
+import com.winky.rabbitutil.service.MQService;
+import com.winky.srb.base.dto.SmsDTO;
 import com.winky.srb.core.enums.TransTypeEnum;
 import com.winky.srb.core.hfb.FormHelper;
 import com.winky.srb.core.hfb.HfbConst;
@@ -12,6 +15,7 @@ import com.winky.srb.core.pojo.entity.UserInfo;
 import com.winky.srb.core.service.TransFlowService;
 import com.winky.srb.core.service.UserAccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.winky.srb.core.service.UserInfoService;
 import com.winky.srb.core.util.LendNoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,9 +39,12 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
 
     @Autowired
     private TransFlowService transFlowService;
-
+    @Autowired
+    private UserInfoService userInfoService;
     @Resource
     private  UserInfoMapper userInfoMapper;
+    @Resource
+    private MQService mqService;
 
     @Override
     public String commitCharge(BigDecimal chargeAmt, Long userId) {
@@ -85,6 +92,17 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
                 TransTypeEnum.RECHARGE,"充值啦");
 
         transFlowService.saveTransFlow(transFlowBO);
+
+        //向消息服务器发送消息
+        SmsDTO smsDTO = new SmsDTO();
+        String mobileByBindCode = userInfoService.getMobileByBindCode(bindCode);
+        smsDTO.setMessage("充值成功");
+        smsDTO.setMobile(mobileByBindCode);
+
+        //向MQ发送消息
+        mqService.sendMessage(MQConst.EXCHANGE_TOPIC_SMS,
+                MQConst.ROUTING_SMS_ITEM,
+                smsDTO);
 
         return "success";
     }
